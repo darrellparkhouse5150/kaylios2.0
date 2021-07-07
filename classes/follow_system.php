@@ -40,8 +40,17 @@
                     return "Already followed";
                 }
             }
-
         }
+
+        public function unfollow($get) {
+            if ($this->is_following($get)) {
+                $session = $_SESSION['id'];
+                $query = $this->db->prepare('DELETE FROM follow_system where follow_by=:session AND follow_to=:get limit 1');
+                $query->execute([':session' => $session, ':get' => $get]);
+            }
+        }
+
+        
 
         public function MeOrNot($get) {
             
