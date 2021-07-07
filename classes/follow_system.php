@@ -2,6 +2,8 @@
     class follow_system {
         public $util;
         public $notify;
+        public $avatar;
+        public $mutual;
 
         public function is_following($get) {
             if (isset($_SESSION['id'])) {
@@ -50,11 +52,35 @@
             }
         }
 
-        
+        public function getFollowers($get) {
+            $query = $this->db->prepare('SELECT follow_by FROM follow_system WHERE follow_to=:get');
+            $query->execute([':get' => $get]);
+
+            return $query->rowCount();
+        }
+
+        public function getPeopleIFollow($get) {
+            $query = $this->db->prepare('SELECT follow_to from follow_system WHERE follow_to=:get');
+            $query->execute([':get' => $get]);
+            $count = $query->rowCount();
+
+            return $count;
+        }
+
+        public function followers($get) {
+            $session = $_SESSION['id'];
+
+            $this->util = new util();
+            $this->avatar = new avatar();
+            $this->mutual = new mutual();
+
+            
+
+        }
 
         public function MeOrNot($get) {
             
-        }
+        } 
     }
 
     $fs = new follow_system();
