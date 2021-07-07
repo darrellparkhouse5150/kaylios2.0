@@ -5,7 +5,6 @@ include 'follow_system';
 class util {
     protected $db;
     protected $follow;
-    protected $
 
     public function __construct() {
         $this->db = new Database();
@@ -29,6 +28,26 @@ class util {
 
             if ($user != $session) {
                 $query = $this->db->prepare('SELECT max(login_id) as get from login where user_id=:id limit 1');
+                $query->execute([':id' => $user]);
+
+                if ($query->rowCount() > 0) {
+                    $row = $query->fetch(PDO::FETCH_OBJ);
+                    $login = $row->get;
+
+                    $query_logout = $this->db->prepare('SELECT logout from login where login_id =:id limit 1');
+                    $query_logout->execute([':id' => $login]);
+
+                    if ($query_logout->rowCount() > 0) {
+                        $ret = $query_logout->fetch(PDO::FETCH_OBJ);
+                        $logout = $ret->logout;
+
+                        if (substr($logout, 0, 4) == "0000") {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }
+                }
             }
         }
     }
@@ -93,5 +112,16 @@ class util {
     public function toAbsUrl($str) {
         $regex = "#[-a-zA-Z0-9@:%_\+.~\#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~\#'\"?&//=]*)?#si";
         return preg_replace($regex, '<a class="hash-tag" href="$0" target="_blank">$0</a>', $str);
+    }
+
+
+    public function urlChecker($url) {
+        if (substr($url, 0, 1) == "/") {
+            $r = 'http://localhost{$url}';
+        } else {
+            $r = $url;
+        }
+
+        return $r;
     }
 }
